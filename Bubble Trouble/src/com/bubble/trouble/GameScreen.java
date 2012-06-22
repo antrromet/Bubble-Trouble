@@ -1,11 +1,13 @@
 package com.bubble.trouble;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -14,6 +16,7 @@ public class GameScreen extends Activity implements SensorEventListener {
 	public static int tilt;
 
 	private SensorManager sensorManager;
+	public static Vibrator vibrator;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,8 @@ public class GameScreen extends Activity implements SensorEventListener {
 
 	private void initialize() {
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		Panel.yArrow = getWindowManager().getDefaultDisplay().getHeight() - 50;
 	}
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {

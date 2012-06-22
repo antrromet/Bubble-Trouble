@@ -1,7 +1,5 @@
 package com.bubble.trouble;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
@@ -28,12 +26,9 @@ public class CanvasThread extends Thread {
 				c = _surfaceHolder.lockCanvas(null);
 				synchronized (_surfaceHolder) {
 					_panel.onDraw(c);
-					_panel.update();
+					Panel.update();
 				}
 			} finally {
-				// do this in a finally so that if an exception is thrown
-				// during the above, we don't leave the Surface in an
-				// inconsistent state
 				if (c != null) {
 					_surfaceHolder.unlockCanvasAndPost(c);
 				}
