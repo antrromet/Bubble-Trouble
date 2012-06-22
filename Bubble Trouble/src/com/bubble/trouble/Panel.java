@@ -15,8 +15,8 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 	private CanvasThread canvasthread;
-	private Paint blackpaint;
-	private Paint bluepaint;
+	private Paint blackPaint;
+	private Paint bluePaint;
 	private Paint redPaint;
 	private Matrix matrix;
 	private Path path;
@@ -27,9 +27,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 	public static float yArrow;
 	public static int canvasHeight;
 	public static int canvasWidth;
-	private static int pos;
+	private static int stickmanPosition;
 
-	private static Ball testBall, testBall1;
+	private static Ball ball;
 
 	public Panel(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -37,40 +37,13 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 		canvasthread = new CanvasThread(getHolder(), this);
 		setFocusable(true);
 
-		blackpaint = new Paint();
-		blackpaint.setColor(Color.BLACK);
-		blackpaint.setStyle(Paint.Style.STROKE);
-		blackpaint.setStrokeWidth(2);
+		blackPaint = new Paint();
+		blackPaint.setColor(Color.BLACK);
+		blackPaint.setStyle(Paint.Style.STROKE);
+		blackPaint.setStrokeWidth(2);
 
-		bluepaint = new Paint();
-		bluepaint.setColor(Color.BLUE);
-
-		redPaint = new Paint();
-		redPaint.setColor(Color.RED);
-		redPaint.setStyle(Paint.Style.STROKE);
-		redPaint.setStrokeWidth(2);
-
-		matrix = new Matrix();
-		background = BitmapFactory.decodeResource(getResources(),
-				R.drawable.gridbackground);
-
-		testBall = new Ball(50, 125, 50, bluepaint, 1, 2);
-		testBall1 = new Ball(30, 100, 30, redPaint, 1, 3);
-
-		fireArrow = false;
-	}
-
-	public Panel(Context context) {
-		super(context);
-		getHolder().addCallback(this);
-		canvasthread = new CanvasThread(getHolder(), this);
-		setFocusable(true);
-
-		blackpaint = new Paint();
-		blackpaint.setColor(Color.BLACK);
-
-		bluepaint = new Paint();
-		bluepaint.setColor(Color.BLUE);
+		bluePaint = new Paint();
+		bluePaint.setColor(Color.BLUE);
 
 		redPaint = new Paint();
 		redPaint.setColor(Color.RED);
@@ -81,8 +54,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 		background = BitmapFactory.decodeResource(getResources(),
 				R.drawable.gridbackground);
 
-		testBall = new Ball(50, 125, 50, bluepaint, 1, 2);
-		testBall1 = new Ball(30, 100, 30, redPaint, 1, 3);
+		ball = new Ball(50, 125, 50, redPaint, 1, 2, false);
 
 		fireArrow = false;
 	}
@@ -93,11 +65,14 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 				canvasHeight, true);
 		canvas.drawBitmap(background, matrix, null);
 		drawStickMan(canvas);
-		testBall.draw(canvas);
-		testBall1.draw(canvas);
-		testBall.checkCollision();
-		if (fireArrow)
+		if (!ball.isCollided()) {
+			ball.draw(canvas);
+		}
+		if (fireArrow) {
 			drawArrow(canvas);
+			if (!ball.isCollided())
+				ball.checkCollision();
+		}
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -140,7 +115,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 		case MotionEvent.ACTION_DOWN:
 			fireArrow = true;
 			if (yArrow == (canvasHeight - 50))
-				xTouch = pos;
+				xTouch = stickmanPosition;
 			break;
 		}
 		return true;
@@ -148,14 +123,14 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	public static void update() {
-		testBall.update();
-		testBall1.update();
+		if (!ball.isCollided())
+			ball.update();
 		if (fireArrow)
 			updateArrow();
 	}
 
 	private static void updateArrow() {
-		yArrow -= 7.5;
+		yArrow -= 10;
 		if (yArrow <= 0) {
 			fireArrow = false;
 			yArrow = canvasHeight - 50;
@@ -163,16 +138,16 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 	}
 
 	private void drawStickMan(Canvas canvas) {
-		pos += GameScreen.tilt * 5;
-		if (pos < 0)
-			pos = 0;
-		else if (pos > canvasWidth)
-			pos = canvasWidth;
-		canvas.drawCircle(pos, canvasHeight - 50, 10, blackpaint);
-		canvas.drawRect(pos - 1, canvasHeight - 40, pos + 1, canvasHeight,
-				blackpaint);
-		canvas.drawRect(pos - 5, canvasHeight - 30, pos + 5, canvasHeight - 29,
-				blackpaint);
+		stickmanPosition += GameScreen.tilt * 5;
+		if (stickmanPosition < 0)
+			stickmanPosition = 0;
+		else if (stickmanPosition > canvasWidth)
+			stickmanPosition = canvasWidth;
+		canvas.drawCircle(stickmanPosition, canvasHeight - 50, 10, blackPaint);
+		canvas.drawRect(stickmanPosition - 1, canvasHeight - 40,
+				stickmanPosition + 1, canvasHeight, blackPaint);
+		canvas.drawRect(stickmanPosition - 5, canvasHeight - 30,
+				stickmanPosition + 5, canvasHeight - 29, blackPaint);
 	}
 
 	private void drawArrow(Canvas canvas) {
@@ -182,7 +157,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 		path.lineTo(-5, 0);
 		path.close();
 		path.offset(xTouch, yArrow);
-		canvas.drawRect(xTouch - 1, yArrow, xTouch + 1, canvasHeight, bluepaint);
-		canvas.drawPath(path, bluepaint);
+		canvas.drawRect(xTouch - 1, yArrow, xTouch + 1, canvasHeight, bluePaint);
+		canvas.drawPath(path, bluePaint);
 	}
 }

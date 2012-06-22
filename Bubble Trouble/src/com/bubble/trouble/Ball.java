@@ -11,15 +11,17 @@ public class Ball {
 	private double yincordec;
 	private int radius;
 	private Paint paint;
+	private boolean collided;
 
 	Ball(float xBall, float yBall, int radius, Paint paint, double xincordec,
-			double yincordec) {
+			double yincordec, boolean collided) {
 		this.xBall = xBall;
 		this.yBall = yBall;
 		this.radius = radius;
 		this.paint = paint;
 		this.xincordec = xincordec;
 		this.yincordec = yincordec;
+		this.collided = collided;
 	}
 
 	public void draw(Canvas canvas) {
@@ -41,11 +43,21 @@ public class Ball {
 		yBall += yincordec;
 	}
 
-	public void checkCollision() {
-		if (((Panel.xTouch - radius) <= xBall)
-				&& ((Panel.xTouch + radius) >= xBall)
-				&& (yBall <= Panel.yArrow)) {
+	public boolean checkCollision() {
+		if ((Panel.yArrow <= yBall)
+				&& (((xBall - radius) == Panel.xTouch) || (xBall + radius) == Panel.xTouch)
+				|| (Math.sqrt((Math.pow((xBall - Panel.xTouch), 2))
+						+ Math.pow((yBall - Panel.yArrow), 2)) < radius)) {
 			GameScreen.vibrator.vibrate(100);
+			collided = true;
+			Panel.yArrow = -1;
+			return collided;
+
 		}
+		return false;
+	}
+
+	public boolean isCollided() {
+		return collided;
 	}
 }
